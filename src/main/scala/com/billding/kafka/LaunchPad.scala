@@ -1,13 +1,13 @@
-package com.billding.kafka
+package com.billding.lightbendpath
 
 import akka.actor.{ActorSystem, Props}
+import com.billding.kafka.FunAlerter
 import com.billding.kafka.weather.RawWeatherActor
 import com.billding.timing.TimedFunctions
+import kafka.utils.ZkUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import kafka.admin.AdminUtils
-import kafka.utils.ZkUtils
 
 object LaunchPad extends  App{
   /*
@@ -34,7 +34,7 @@ object LaunchPad extends  App{
 
     val system = ActorSystem("HelloSystem")
     val helloActor = system.actorOf(Props[RawWeatherActor], name = "helloactor")
-    system.scheduler.scheduleOnce(50 milliseconds, helloActor, RawWeatherActor.GREET_OTHERS)
+    system.scheduler.scheduleOnce(50 milliseconds, helloActor, RawWeatherActor.START_PRODUCING_WEATHER)
 //    val consumerAndForwarder = new ConsumerAndForwarder()
 //      consumerAndForwarder.run()
 
