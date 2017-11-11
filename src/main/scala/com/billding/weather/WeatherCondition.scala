@@ -1,4 +1,4 @@
-package com.billding.kafka.weather
+package com.billding.weather
 
 object WeatherCondition {
   val values = List(Snow, Rain)

@@ -1,8 +1,7 @@
 package com.billding.lightbendpath
 
 import akka.actor.{ActorSystem, Props}
-import com.billding.kafka.FunAlerter
-import com.billding.kafka.weather.RawWeatherActor
+import com.billding.akka.RawWeatherActor
 import com.billding.timing.TimedFunctions
 import kafka.utils.ZkUtils
 

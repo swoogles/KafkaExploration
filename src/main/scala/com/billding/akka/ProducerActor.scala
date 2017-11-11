@@ -1,6 +1,7 @@
-package com.billding.kafka.weather
+package com.billding.akka
 
 import akka.actor.Actor
+import com.billding.weather.WeatherCondition
 import com.billding.kafka.{BidirectionalKafka, KafkaConfig}
 import org.apache.kafka.clients.producer._
 
@@ -25,6 +26,7 @@ class RawWeatherActor extends Actor {
   def receive: PartialFunction[Any, Unit] = {
     case RawWeatherActor.START_PRODUCING_WEATHER => {
       for ( i <- WeatherCondition.values) {
+        // Should the "key" here also be locked down in some way?
         val record = new ProducerRecord(kafkaProps.RAW_WEATHER, "key", i.name)
         bidirectionalKafka.producer.send(record)
       }

@@ -1,8 +1,9 @@
 
-package com.billding.kafka
+package com.billding.lightbendpath
 
 import java.time.Duration
 
+import com.billding.kafka.{BidirectionalKafka, KafkaConfig}
 import com.billding.timing.TimedFunctions
 import org.apache.kafka.clients.consumer.{ConsumerRecord, ConsumerRecords}
 
