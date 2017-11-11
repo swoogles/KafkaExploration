@@ -14,5 +14,9 @@ class KafkaConfig {
   props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
 
   val TOPIC_1 = "test2"
-  val TOPIC_2 = "filtered_topic"
+  val RAW_WEATHER = "raw_weather"
+
+  val NULL_TOPIC = "##!!INVALID TOPIC!!##"
+  val BUSINESS_TOPIC = "business_topic"
+  val PLEASURE_TOPIC = "pleasure_topic"
 }
