@@ -16,7 +16,7 @@ class KafkaConfig {
   val TOPIC_1 = "test2"
   val RAW_WEATHER = "raw_weather"
 
-  val NULL_TOPIC = "##!!INVALID TOPIC!!##"
+  val NULL_TOPIC = "This really just means that I need to come up with a less Stringly-typed solution. Until then- weak."
   val BUSINESS_TOPIC = "business_topic"
   val PLEASURE_TOPIC = "pleasure_topic"
 }
