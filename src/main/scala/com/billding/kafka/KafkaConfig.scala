@@ -2,6 +2,10 @@ package com.billding.kafka
 
 import java.util.Properties
 
+/*
+  There should be some capability here for making sure these
+  topics/servers are actually available.
+ */
 class KafkaConfig {
   val  props = new Properties()
   props.put("bootstrap.servers", "localhost:9092")

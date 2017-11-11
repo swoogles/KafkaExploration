@@ -1,13 +1,13 @@
 package com.billding.timing
 
-import java.time.{Duration, Instant}
+import java.time.{Clock, Duration}
 
-class TimedFunctions {
+class TimedFunctions(clock: Clock) {
 
-  def doForPeriodOfTime(runTime: Duration, taskName: String) ( func: () =>Unit ): Unit = {
+  def doForPeriodOfTime(runTime: Duration, taskName: String,  func: () =>Unit ): Unit = {
     println(s"starting $taskName")
-    val start = Instant.now()
-    while(Duration.between(start, Instant.now()).compareTo(runTime) < 0 ) {
+    val start = clock.instant()
+    while(Duration.between(start, clock.instant()).compareTo(runTime) < 0 ) {
       func.apply()
     }
     println(s"finished $taskName")
