@@ -1,6 +1,8 @@
 package com.billding.kafka
 
 import akka.actor.{ActorSystem, Props}
+import com.billding.kafka.weather.RawWeatherActor
+import com.billding.timing.TimedFunctions
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -17,8 +19,6 @@ object LaunchPad extends  App{
    */
 
   override def main(args: Array[String]): Unit = {
-
-
     val sessionTimeoutMs = 10 * 1000
     val connectionTimeoutMs = 8 * 1000
 
@@ -26,18 +26,24 @@ object LaunchPad extends  App{
       "localhost:2181",
       sessionTimeoutMs,
       connectionTimeoutMs,
-      false)
+      false
+    )
 
     val topics: Seq[String] = zkUtils.getAllTopics()
     topics foreach println
 
-    println("Hi!")
     val system = ActorSystem("HelloSystem")
-    // default Actor constructor
-    val helloActor = system.actorOf(Props[ProducerActor], name = "helloactor")
-//    system.scheduler.schedule(50 milliseconds, 1000 milliseconds, helloActor, "kafka")
-    system.scheduler.scheduleOnce(50 milliseconds, helloActor, ProducerActor.GREET_OTHERS)
-    ConsumerAndForwarder.run()
+    val helloActor = system.actorOf(Props[RawWeatherActor], name = "helloactor")
+    system.scheduler.scheduleOnce(50 milliseconds, helloActor, RawWeatherActor.GREET_OTHERS)
+//    val consumerAndForwarder = new ConsumerAndForwarder()
+//      consumerAndForwarder.run()
+
+//    val weatherAlerter = new WeatherAlerter()
+//    weatherAlerter.run()
+
+    val funAlerter = new FunAlerter(new TimedFunctions)
+    funAlerter.run()
+
     system.terminate()
   }
 }

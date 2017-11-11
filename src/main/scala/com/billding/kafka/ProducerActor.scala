@@ -9,12 +9,11 @@ class ProducerActor extends Actor {
 
   val producer = new KafkaProducer[String, String](kafkaProps.props)
 
-  val TOPIC = "test2"
   def receive: PartialFunction[Any, Unit] = {
     case ProducerActor.GREET_OTHERS => {
       for(i <- 1 to 5){
         println("received in producer")
-        val record = new ProducerRecord(TOPIC, "key", s"hello from scala code $i")
+        val record = new ProducerRecord(kafkaProps.RAW_WEATHER, "key", s"snow")
         producer.send(record)
       }
     }
