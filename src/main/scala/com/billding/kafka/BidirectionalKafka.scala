@@ -14,6 +14,9 @@ class BidirectionalKafka(
 
   consumer.subscribe(util.Collections.singletonList(input))
 
+  def poll(timeout: Long) =
+    consumer.poll(timeout)
+
   val producer: KafkaProducer[String, String] = new KafkaProducer[String, String](kafkaConfig.props)
 
   def send(key: String , value: String ) = {

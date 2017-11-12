@@ -3,13 +3,12 @@ package com.billding.akka
 import akka.actor.Actor
 import com.billding.weather.WeatherCondition
 import com.billding.kafka.{BidirectionalKafka, KafkaConfig}
-import org.apache.kafka.clients.producer._
 
 class RawWeatherActor extends Actor {
 
   val kafkaProps = new KafkaConfig()
   val bidirectionalKafka: BidirectionalKafka =
-    new BidirectionalKafka(kafkaProps.NULL_TOPIC, kafkaProps.PLEASURE_TOPIC)
+    new BidirectionalKafka(kafkaProps.NULL_TOPIC, kafkaProps.RAW_WEATHER)
 
   /*
     Maybe the reason that actors have signatures that can see anything, and do anything in response, is that real entities
@@ -25,10 +24,13 @@ class RawWeatherActor extends Actor {
    */
   def receive: PartialFunction[Any, Unit] = {
     case RawWeatherActor.START_PRODUCING_WEATHER => {
+      println("about to make some weather")
       for ( i <- WeatherCondition.values) {
         // Should the "key" here also be locked down in some way?
-        val record = new ProducerRecord(kafkaProps.RAW_WEATHER, "key", i.name)
-        bidirectionalKafka.producer.send(record)
+        bidirectionalKafka.send(
+          "key",
+          i.name
+        )
       }
     }
     case _ => throw new RuntimeException("No idea what you want this RawWeatherActor to do.")
