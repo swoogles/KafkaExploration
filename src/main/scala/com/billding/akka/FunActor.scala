@@ -1,23 +1,18 @@
 package com.billding.akka
 
-import akka.actor.Actor
 import com.billding.akka.FunActor.PING
-import com.billding.kafka.{BidirectionalKafka, KafkaConfig}
-import org.apache.kafka.clients.consumer.{ConsumerRecord, ConsumerRecords}
+import com.billding.kafka.{KafkaConfigPermanent}
 
-import scala.collection.JavaConverters._
-
-class FunActor extends ChattyActor {
+class FunActor
+  extends BidirectionalActor(
+    KafkaConfigPermanent.RAW_WEATHER,
+    KafkaConfigPermanent.PLEASURE_TOPIC
+  ) {
   val name = "Fun Actor"
 
-  val kafkaProps = new KafkaConfig()
-  val bidirectionalKafka: BidirectionalKafka =
-    new BidirectionalKafka(kafkaProps.RAW_WEATHER, kafkaProps.PLEASURE_TOPIC)
-
   def specificReceive: PartialFunction[Any, Unit] = {
-    case PING => {
-      val records: ConsumerRecords[String, String] = bidirectionalKafka.poll(100)
-      for (record: ConsumerRecord[String, String] <- records.asScala) {
+    case PING =>
+      pollWith( record =>{
         println("Actually got RAW_WEATHER records")
         if (record.value.contains("Snow")) {
           bidirectionalKafka.send(
@@ -26,8 +21,9 @@ class FunActor extends ChattyActor {
           )
         }
       }
-    }
+      )
   }
+
 }
 
 object FunActor {
