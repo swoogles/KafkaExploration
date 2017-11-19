@@ -3,7 +3,7 @@ package com.billding.akka
 import com.billding.weather.WeatherCondition
 import com.billding.kafka.{BidirectionalKafka, KafkaConfig, KafkaConfigPermanent}
 
-class RawWeatherActor
+class RawWeatherProducer
   extends BidirectionalActor(
     KafkaConfigPermanent.NULL_TOPIC,
     KafkaConfigPermanent.RAW_WEATHER
@@ -11,8 +11,9 @@ class RawWeatherActor
   val name = "Raw Weath Actor"
 
   def specificReceive: PartialFunction[Any, Unit] = {
-    case RawWeatherActor.START_PRODUCING_WEATHER => {
+    case RawWeatherProducer.START_PRODUCING_WEATHER => {
       for ( weather <- WeatherCondition.values) {
+        println("producing weather: "+ weather.name)
         // Should the "key" here also be locked down in some way?
         bidirectionalKafka.send(
           "key",
@@ -23,7 +24,7 @@ class RawWeatherActor
   }
 }
 
-object RawWeatherActor {
+object RawWeatherProducer {
   sealed  trait Actions
   object START_PRODUCING_WEATHER extends Actions
 }

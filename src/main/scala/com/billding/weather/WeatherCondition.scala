@@ -1,10 +1,10 @@
 package com.billding.weather
 
 object WeatherCondition {
-  val values = List(Snow, Rain, Tornado)
+  val values = List(Rain, Tornado, Snow)
 
-  object Snow extends WeatherCondition {
-    val name = "Snow"
+  object Tornado extends WeatherCondition {
+    val name = "Tornado"
     val idx = 0
   }
 
@@ -13,8 +13,8 @@ object WeatherCondition {
     val idx = 1
   }
 
-  object Tornado extends WeatherCondition {
-    val name = "Tornado"
+  object Snow extends WeatherCondition {
+    val name = "Snow"
     val idx = 2
   }
 
