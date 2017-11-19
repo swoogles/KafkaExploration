@@ -17,9 +17,10 @@ abstract class BidirectionalActor(input: String, output: String) extends ChattyA
 
 
   def pollWith(pollingFunc: ConsumerRecord[String, String] => Unit) = {
-    timedFunctions.doForPeriodOfTime(Duration.ofSeconds(1), "polling", () => {
+    timedFunctions.doForPeriodOfTime(Duration.ofSeconds(2), "polling", () => {
       val records: ConsumerRecords[String, String] = bidirectionalKafka.poll(200)
       for (record: ConsumerRecord[String, String] <- records.asScala) {
+        println("Got a record")
         pollingFunc(record)
       }
     }
