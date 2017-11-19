@@ -3,8 +3,9 @@ package com.billding.lightbendpath
 import java.time.Clock
 
 import akka.actor.{ActorSystem, PoisonPill, Props}
+import com.billding.akka.Dispatcher.Initiate
 import com.billding.akka.Reaper.WatchMe
-import com.billding.akka.{DutyAlerter, FunActor, ProductionReaper, RawWeatherActor, Reaper}
+import com.billding.akka.{Dispatcher, DutyAlerter, FunActor, ProductionReaper, RawWeatherAlerter, RawWeatherProducer, Reaper}
 import com.billding.timing.TimedFunctions
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -34,53 +35,19 @@ object LaunchPad extends  App{
 
     val system = ActorSystem("HelloSystem")
 
-    val reaper = system.actorOf(Props[ProductionReaper], name = "reaper")
-
-    val rawWeatherActor = system.actorOf(Props[RawWeatherActor], name = "helloactor")
-    reaper ! WatchMe(rawWeatherActor)
-
-    val funActor = system.actorOf(Props[FunActor], name = "funActor")
-    reaper ! WatchMe(funActor)
-
-    val dutyActor = system.actorOf(Props[DutyAlerter], name = "dutyActor")
-
-    reaper ! WatchMe(dutyActor)
-
-    system.scheduler.scheduleOnce(
-      5 milliseconds,
-      funActor,
-      FunActor.PING
-    )
-
-    system.scheduler.scheduleOnce(
-      5 milliseconds,
-      dutyActor,
-      DutyAlerter.PING
-    )
-
+    val dispatcher = system.actorOf(Props[Dispatcher], name = "dispatcher")
 
     system.scheduler.scheduleOnce(
       15 milliseconds,
-      rawWeatherActor,
-      RawWeatherActor.START_PRODUCING_WEATHER
-    )
-
-    system.scheduler.scheduleOnce(
-      150 milliseconds,
-      rawWeatherActor,
-      PoisonPill
+      dispatcher,
+      Initiate
     )
 
 
-    system.scheduler.scheduleOnce(
-      150 milliseconds,
-      funActor,
-      PoisonPill
-    )
 
     system.scheduler.scheduleOnce(
-      150 milliseconds,
-      dutyActor,
+      550 milliseconds,
+      dispatcher,
       PoisonPill
     )
 
