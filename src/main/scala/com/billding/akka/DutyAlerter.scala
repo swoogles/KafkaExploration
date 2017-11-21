@@ -1,6 +1,7 @@
 package com.billding.akka
 
 import com.billding.akka.DutyAlerter.PING
+import com.billding.akka.RawWeatherAlerter.SNOW_ALERT
 import com.billding.kafka.KafkaConfigPermanent
 import com.billding.weather.WeatherCondition.Snow
 
@@ -23,6 +24,13 @@ class DutyAlerter
         }
       }
       )
+
+    case snowAlert: SNOW_ALERT => {
+      bidirectionalKafka.send(
+        "key",
+        snowAlert.toString
+      )
+    }
   }
 
 }

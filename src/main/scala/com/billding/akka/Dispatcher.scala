@@ -21,6 +21,10 @@ class Dispatcher extends Actor {
 
   val funActor = context.actorOf(Props[FunActor], name = "funActor")
   reaper ! WatchMe(funActor)
+
+  val dutyAlerterActor = context.actorOf(Props[DutyAlerter], name = "dutyAlerterActor")
+  reaper ! WatchMe(dutyAlerterActor)
+
   override def receive = {
     case Initiate => {
       println("start doing stuff!")
@@ -56,9 +60,16 @@ class Dispatcher extends Actor {
         PoisonPill
       )
 
+      context.system.scheduler.scheduleOnce(
+        5550 milliseconds,
+        dutyAlerterActor,
+        PoisonPill
+      )
+
     }
-    case SNOW_ALERT(msg, time) => {
-      funActor ! SNOW_ALERT(msg, time)
+    case snowAlert: SNOW_ALERT => {
+      funActor ! snowAlert
+      dutyAlerterActor ! snowAlert
     }
     case other => {
       println("unrecognized message in dispatcher")
