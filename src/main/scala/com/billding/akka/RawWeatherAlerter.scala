@@ -50,7 +50,7 @@ class RawWeatherAlerter
           println("Actually got RAW_WEATHER record: " + record.value)
           if (record.value.contains("Snow")) {
             println("recognized snow")
-            sender() ! SNOW_ALERT("Snow coming!", startTime)
+            context.parent ! SNOW_ALERT("Snow coming!", startTime)
           }
         }
       }

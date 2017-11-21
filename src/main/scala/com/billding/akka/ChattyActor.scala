@@ -25,7 +25,7 @@ abstract class ChattyActor extends  Actor {
         specificReceive(msg)
         println(name + ": Stop Responding to : " + msg)
         } catch {
-          case ex: MatchError => println("Unexpected message for this actor: " + msg)
+          case ex: MatchError => println("Unexpected message for actor " + name + ": " + msg)
         }
       }
   }
