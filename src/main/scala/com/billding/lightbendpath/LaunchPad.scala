@@ -45,11 +45,12 @@ object LaunchPad extends  App{
 
 
 
-    system.scheduler.scheduleOnce(
-      550 milliseconds,
-      dispatcher,
-      PoisonPill
-    )
+    // D'OH! This was killing me, regardless of the niftier stuff I was trying later!
+//    system.scheduler.scheduleOnce(
+//      5550 milliseconds,
+//      dispatcher,
+//      PoisonPill
+//    )
 
   }
 }

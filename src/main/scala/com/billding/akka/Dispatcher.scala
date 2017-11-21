@@ -13,7 +13,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class Dispatcher extends Actor {
   val reaper = context.actorOf(Props[ProductionReaper], name = "reaper")
 
-  val rawWeatherActor = context.actorOf(Props[RawWeatherProducer], name = "helloactor")
+  val rawWeatherActor = context.actorOf(Props[RawWeatherProducer], name = "rawWeatherProducer")
   reaper ! WatchMe(rawWeatherActor)
 
   val rawWeatherAlerter = context.actorOf(Props[RawWeatherAlerter], name = "rawWeatherAlerterActor")
@@ -27,7 +27,7 @@ class Dispatcher extends Actor {
       val startTime = Instant.now().minusSeconds(10)
 
       context.system .scheduler.scheduleOnce(
-        1 milliseconds,
+        2001 milliseconds,
         rawWeatherActor,
         RawWeatherProducer.START_PRODUCING_WEATHER
       )
@@ -39,27 +39,26 @@ class Dispatcher extends Actor {
       )
 
       context.system.scheduler.scheduleOnce(
-        1500 milliseconds,
+        5500 milliseconds,
         rawWeatherActor,
         PoisonPill
       )
 
       context.system.scheduler.scheduleOnce(
-        1500 milliseconds,
+        5500 milliseconds,
         rawWeatherAlerter,
         PoisonPill
       )
 
-
-
       context.system.scheduler.scheduleOnce(
-        550 milliseconds,
+        5550 milliseconds,
         funActor,
         PoisonPill
       )
+
     }
-    case SNOW_ALERT(msg) => {
-      funActor ! SNOW_ALERT(msg)
+    case SNOW_ALERT(msg, time) => {
+      funActor ! SNOW_ALERT(msg, time)
     }
     case other => {
       println("unrecognized message in dispatcher")

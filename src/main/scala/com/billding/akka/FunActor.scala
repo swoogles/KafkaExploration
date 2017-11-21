@@ -1,6 +1,5 @@
 package com.billding.akka
 
-import com.billding.akka.FunActor.PING
 import com.billding.akka.RawWeatherAlerter.SNOW_ALERT
 import com.billding.kafka.KafkaConfigPermanent
 
@@ -12,12 +11,12 @@ class FunActor
   val name = "Fun Actor"
 
   def specificReceive: PartialFunction[Any, Unit] = {
-    case SNOW_ALERT(msg) => {
+    case snowAlert: SNOW_ALERT => {
       println("got a snow alert in fun actor")
 
       bidirectionalKafka.send(
         "key",
-        s"$msg"
+        snowAlert.toString
       )
     }
   }

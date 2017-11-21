@@ -2,15 +2,14 @@ package com.billding.akka
 
 import java.time.Instant
 
-import akka.actor.ActorRef
 import com.billding.akka.RawWeatherAlerter.{PING, SNOW_ALERT}
-import com.billding.weather.WeatherCondition
-import com.billding.kafka.{BidirectionalKafka, KafkaConfig, KafkaConfigPermanent}
-import org.apache.kafka.common.TopicPartition
+import com.billding.kafka.KafkaConfigPermanent
+import org.apache.kafka.clients.consumer.{ConsumerRecord, ConsumerRecords}
 
-//import java.util.Collection
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class RawWeatherAlerter
   extends BidirectionalActor(
@@ -21,13 +20,13 @@ class RawWeatherAlerter
 
 
   def specificReceive: PartialFunction[Any, Unit] = {
-    case PING(starTime) =>
+    case PING(startTime) =>
       println("RawWeatherAlerter got a ping")
 
 //      bidirectionalKafka.consumer.poll(1)
 //      bidirectionalKafka.consumer.seek(
 //        new TopicPartition(KafkaConfigPermanent.RAW_WEATHER, 0),
-//        starTime.getEpochSecond
+//        startTime.getEpochSecond
 //      )
 
 //      bidirectionalKafka.consumer.poll(1)
@@ -37,26 +36,38 @@ class RawWeatherAlerter
 //        )
 //      )
 
-      pollWith( record =>{
-        println("Actually got RAW_WEATHER record: " + record.value)
-        if (record.value.contains("Snow")) {
-          println("recognized snow")
-          sender() ! SNOW_ALERT("Snow coming!")
-//          context.child("funActor").get.tell(SNOW_ALERT(s"Snow is coming! Get ready to shred!"), self)
-//          context.actorSelection("funActor").tell(SNOW_ALERT(s"Snow is coming! Get ready to shred!"), self)
-//          bidirectionalKafka.send(
-//            "key",
-//            s"Snow is coming! Get ready to shred!"
-//          )
+      val records: ConsumerRecords[String, String] = bidirectionalKafka.poll(200)
+      if ( records.isEmpty ) {
+        println("going to try again for more records in a bit! Without blocking!")
+        context.system.scheduler.scheduleOnce(
+          5 milliseconds,
+          self,
+          PING(startTime)
+        )
+
+      } else {
+        for (record: ConsumerRecord[String, String] <- records.asScala) {
+          println("Actually got RAW_WEATHER record: " + record.value)
+          if (record.value.contains("Snow")) {
+            println("recognized snow")
+            sender() ! SNOW_ALERT("Snow coming!", startTime)
+          }
         }
       }
-      )
+//      pollWith( record =>{
+//        println("Actually got RAW_WEATHER record: " + record.value)
+//        if (record.value.contains("Snow")) {
+//          println("recognized snow")
+//          sender() ! SNOW_ALERT("Snow coming!", startTime)
+//        }
+//      }
+//      )
   }
 }
 
 object RawWeatherAlerter {
   sealed  trait Actions
-  case class PING(starTime: Instant) extends Actions
-  case class SNOW_ALERT(msg: String) extends Actions
+  case class PING(startTime: Instant) extends Actions
+  case class SNOW_ALERT(msg: String, time: Instant) extends Actions
 }
 

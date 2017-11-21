@@ -1,5 +1,7 @@
 package com.billding.akka
 
+import java.time.Clock
+
 import com.billding.weather.WeatherCondition
 import com.billding.kafka.{BidirectionalKafka, KafkaConfig, KafkaConfigPermanent}
 
@@ -10,6 +12,8 @@ class RawWeatherProducer
   ) {
   val name = "Raw Weath Actor"
 
+  val clock = Clock.systemUTC()
+
   def specificReceive: PartialFunction[Any, Unit] = {
     case RawWeatherProducer.START_PRODUCING_WEATHER => {
       for ( weather <- WeatherCondition.values) {
@@ -17,7 +21,7 @@ class RawWeatherProducer
         // Should the "key" here also be locked down in some way?
         bidirectionalKafka.send(
           "key",
-          weather.name
+          clock.instant().plusSeconds(weather.idx) + ": " + weather.name
         )
       }
     }

@@ -6,12 +6,12 @@ import com.billding.kafka.{BidirectionalKafka, KafkaConfig}
 import com.billding.timing.TimedFunctions
 import org.apache.kafka.clients.consumer.{ConsumerRecord, ConsumerRecords}
 
+import scala.collection.JavaConverters._
+
 abstract class BidirectionalActor(input: String, output: String) extends ChattyActor {
   val kafkaProps = new KafkaConfig()
   val bidirectionalKafka: BidirectionalKafka =
     new BidirectionalKafka(input, output)
-
-  import scala.collection.JavaConverters._
 
   val timedFunctions: TimedFunctions = new TimedFunctions(kafkaProps.clock)
 
