@@ -24,12 +24,6 @@ class RawWeatherAlerter
       println("RawWeatherAlerter got a ping")
 
 //      bidirectionalKafka.consumer.poll(1)
-//      bidirectionalKafka.consumer.seek(
-//        new TopicPartition(KafkaConfigPermanent.RAW_WEATHER, 0),
-//        startTime.getEpochSecond
-//      )
-
-//      bidirectionalKafka.consumer.poll(1)
 //      bidirectionalKafka.consumer.seekToBeginning(
 //        List(
 //          new TopicPartition(KafkaConfigPermanent.RAW_WEATHER, 0)
@@ -54,14 +48,6 @@ class RawWeatherAlerter
           }
         }
       }
-//      pollWith( record =>{
-//        println("Actually got RAW_WEATHER record: " + record.value)
-//        if (record.value.contains("Snow")) {
-//          println("recognized snow")
-//          sender() ! SNOW_ALERT("Snow coming!", startTime)
-//        }
-//      }
-//      )
   }
 }
 

@@ -14,16 +14,17 @@ class RawWeatherProducer
 
   val clock = Clock.systemUTC()
 
+  def weatherCycle(): List[String] = {
+    for ( weather <- WeatherCondition.values) yield {
+      clock.instant().plusSeconds(weather.idx) + ": " + weather.name
+    }
+  }
+
   def specificReceive: PartialFunction[Any, Unit] = {
     case RawWeatherProducer.START_PRODUCING_WEATHER => {
-      for ( weather <- WeatherCondition.values) {
-        println("producing weather: "+ weather.name)
-        // Should the "key" here also be locked down in some way?
-        bidirectionalKafka.send(
-          "key",
-          clock.instant().plusSeconds(weather.idx) + ": " + weather.name
-        )
-      }
+      weatherCycle().foreach(
+        bidirectionalKafka.send( "key", _ )
+      )
     }
   }
 }
@@ -31,4 +32,5 @@ class RawWeatherProducer
 object RawWeatherProducer {
   sealed  trait Actions
   object START_PRODUCING_WEATHER extends Actions
+  case class WeatherCycles(count: Int) extends Actions
 }

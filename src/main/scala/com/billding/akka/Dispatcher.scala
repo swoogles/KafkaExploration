@@ -13,14 +13,18 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class Dispatcher extends Actor {
   val reaper = context.actorOf(Props[ProductionReaper], name = "reaper")
 
-  val rawWeatherActor = context.actorOf(Props[RawWeatherProducer], name = "rawWeatherProducer")
-  val rawWeatherAlerter = context.actorOf(Props[RawWeatherAlerter], name = "rawWeatherAlerterActor")
-  val funActor = context.actorOf(Props[FunActor], name = "funActor")
-  val dutyAlerterActor = context.actorOf(Props[DutyAlerter], name = "dutyAlerterActor")
+  val rawWeatherProducer =
+    context.actorOf(Props[RawWeatherProducer], name = "rawWeatherProducer")
+  val rawWeatherAlerter =
+    context.actorOf(Props[RawWeatherAlerter], name = "rawWeatherAlerterActor")
+  val funActor =
+    context.actorOf(Props[FunActor], name = "funActor")
+  val dutyAlerterActor =
+    context.actorOf(Props[DutyAlerter], name = "dutyAlerterActor")
 
   reaper ! WatchUsAndPoisonAfter(
     Seq(
-      rawWeatherActor,
+      rawWeatherProducer,
       rawWeatherAlerter,
       funActor,
       dutyAlerterActor
@@ -35,7 +39,7 @@ class Dispatcher extends Actor {
 
       context.system .scheduler.scheduleOnce(
         2001 milliseconds,
-        rawWeatherActor,
+        rawWeatherProducer,
         RawWeatherProducer.START_PRODUCING_WEATHER
       )
 
