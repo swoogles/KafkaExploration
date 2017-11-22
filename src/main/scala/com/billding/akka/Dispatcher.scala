@@ -2,10 +2,10 @@ package com.billding.akka
 
 import java.time.Instant
 
-import akka.actor.{Actor, PoisonPill, Props}
+import akka.actor.{Actor, ActorRef, PoisonPill, Props}
 import com.billding.akka.Dispatcher.Initiate
 import com.billding.akka.RawWeatherAlerter.SNOW_ALERT
-import com.billding.akka.Reaper.WatchMe
+import com.billding.akka.Reaper.{WatchMe, WatchUs}
 
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -14,16 +14,18 @@ class Dispatcher extends Actor {
   val reaper = context.actorOf(Props[ProductionReaper], name = "reaper")
 
   val rawWeatherActor = context.actorOf(Props[RawWeatherProducer], name = "rawWeatherProducer")
-  reaper ! WatchMe(rawWeatherActor)
-
   val rawWeatherAlerter = context.actorOf(Props[RawWeatherAlerter], name = "rawWeatherAlerterActor")
-  reaper ! WatchMe(rawWeatherAlerter)
-
   val funActor = context.actorOf(Props[FunActor], name = "funActor")
-  reaper ! WatchMe(funActor)
-
   val dutyAlerterActor = context.actorOf(Props[DutyAlerter], name = "dutyAlerterActor")
-  reaper ! WatchMe(dutyAlerterActor)
+
+  reaper ! WatchUs(
+    Seq(
+      rawWeatherActor,
+      rawWeatherAlerter,
+      funActor,
+      dutyAlerterActor
+    )
+  )
 
   override def receive = {
     case Initiate => {
@@ -42,30 +44,14 @@ class Dispatcher extends Actor {
         RawWeatherAlerter.PING(startTime)
       )
 
-      context.system.scheduler.scheduleOnce(
-        5500 milliseconds,
-        rawWeatherActor,
-        PoisonPill
+      poisonAfterPeriod(
+        Seq(
+          dutyAlerterActor,
+          rawWeatherActor,
+          rawWeatherAlerter,
+          funActor
+        )
       )
-
-      context.system.scheduler.scheduleOnce(
-        5500 milliseconds,
-        rawWeatherAlerter,
-        PoisonPill
-      )
-
-      context.system.scheduler.scheduleOnce(
-        5550 milliseconds,
-        funActor,
-        PoisonPill
-      )
-
-      context.system.scheduler.scheduleOnce(
-        5550 milliseconds,
-        dutyAlerterActor,
-        PoisonPill
-      )
-
     }
     case snowAlert: SNOW_ALERT => {
       funActor ! snowAlert
@@ -78,6 +64,18 @@ class Dispatcher extends Actor {
 
 
   }
+
+  def poisonAfterPeriod(
+    actors: Seq[ActorRef]
+  ) =
+    for ( actor <- actors) {
+      context.system.scheduler.scheduleOnce(
+        5500 milliseconds,
+        actor,
+        PoisonPill
+      )
+    }
+
 }
 
 
