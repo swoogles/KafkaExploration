@@ -3,7 +3,7 @@ package com.billding.akka
 import com.billding.akka.DutyAlerter.PING
 import com.billding.akka.RawWeatherAlerter.SNOW_ALERT
 import com.billding.kafka.KafkaConfigPermanent
-import com.billding.weather.WeatherCondition.Snow
+import com.billding.weather.WeatherType.Snow
 
 class DutyAlerter
   extends BidirectionalActor(
@@ -12,7 +12,7 @@ class DutyAlerter
   ) {
   val name = "Duty Alerter"
 
-  def specificReceive: PartialFunction[Any, Unit] = {
+  def receive: PartialFunction[Any, Unit] = {
     case PING =>
       pollWith( record =>{
         println("got RAW_WEATHER records for duties")

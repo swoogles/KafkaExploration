@@ -12,7 +12,7 @@ class FunActor
 
   var snowCount = 0
 
-  def specificReceive: PartialFunction[Any, Unit] = {
+  def receive: PartialFunction[Any, Unit] = {
     case snowAlert: SNOW_ALERT => {
       snowCount+=1
       if ( snowCount > 2 ) {
@@ -24,11 +24,10 @@ class FunActor
     }
   }
 
-  /*
-  def specificReceiveCounting: Integer => PartialFunction[Any, Unit] =
-    count => {
+  def specificReceiveCounting: PartialFunction[Any, Unit] =
+    {
       case snowAlert: SNOW_ALERT => {
-        if (count > 3) {
+        if (snowCount > 3) {
           bidirectionalKafka.send(
             "key",
             snowAlert.toString
@@ -38,7 +37,6 @@ class FunActor
         }
       }
     }
-    */
 
 }
 

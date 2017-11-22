@@ -20,7 +20,7 @@ class RawWeatherAlerter
 
   var weatherCyclesConsumed = 0
 
-  def specificReceive: PartialFunction[Any, Unit] = {
+  def receive: PartialFunction[Any, Unit] = {
     case PING(startTime) =>
       println("RawWeatherAlerter got a ping")
 

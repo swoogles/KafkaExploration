@@ -16,18 +16,18 @@ import akka.actor.Actor
  */
 abstract class ChattyActor extends  Actor {
   val name: String
-  def specificReceive: PartialFunction[Any, Unit]
-
-  def receive: PartialFunction[Any, Unit] = {
-      case msg => {
-        try {
-        println(name + ": Start Responding to : " + msg)
-        specificReceive(msg)
-        println(name + ": Stop Responding to : " + msg)
-        } catch {
-          case ex: MatchError => println("Unexpected message for actor " + name + ": " + msg)
-        }
-      }
-  }
+//  def specificReceive: PartialFunction[Any, Unit]
+//
+//  def receive: PartialFunction[Any, Unit] = {
+//      case msg => {
+//        try {
+//        println(name + ": Start Responding to : " + msg)
+//        specificReceive(msg)
+//        println(name + ": Stop Responding to : " + msg)
+//        } catch {
+//          case ex: MatchError => println("Unexpected message for actor " + name + ": " + msg)
+//        }
+//      }
+//  }
 
 }
