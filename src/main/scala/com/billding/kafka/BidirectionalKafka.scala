@@ -4,6 +4,7 @@ import java.util
 
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
+import play.api.libs.json.JsValue
 
 class BidirectionalKafka(
   input: String,
@@ -19,9 +20,10 @@ class BidirectionalKafka(
     consumer.poll(timeout)
   }
 
-  val producer: KafkaProducer[String, String] = new KafkaProducer[String, String](kafkaConfig.props)
+  val producer: KafkaProducer[String, JsValue] =
+    new KafkaProducer[String, JsValue](kafkaConfig.props)
 
-  def send(key: String , value: String ) = {
+  def send(key: String , value: JsValue ) = {
     producer.send(
       new ProducerRecord(
         output, key, value)

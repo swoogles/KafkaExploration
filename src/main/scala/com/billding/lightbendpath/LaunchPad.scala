@@ -7,6 +7,7 @@ import com.billding.akka.Dispatcher.Initiate
 import com.billding.akka.Reaper.WatchMe
 import com.billding.akka.{Dispatcher, DutyAlerter, FunActor, ProductionReaper, RawWeatherAlerter, RawWeatherProducer, Reaper}
 import com.billding.timing.TimedFunctions
+import com.billding.weather.{Condition, Location, WeatherType}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -25,13 +26,19 @@ object LaunchPad extends  App{
 
   override def main(args: Array[String]): Unit = {
 
-    /*
-    import com.billding.zookeeper.ZookeeperConfig
-    import kafka.utils.ZkUtils
-    val zkUtils: ZkUtils = new ZookeeperConfig().zkUtils
-    val topics: Seq[String] = zkUtils.getAllTopics()
-    topics foreach println
-    */
+    import play.api.libs.json._
+
+    implicit val locationWrites = Json.writes[Location]
+    val location = Location.crestedButte
+
+    implicit val weatherTypeWrites = Json.writes[WeatherType]
+    val weatherType = WeatherType.Snow
+
+    implicit val conditionWrites = Json.writes[Condition]
+    val clock = Clock.systemUTC()
+    val condition = Condition(location, weatherType, clock.instant())
+    val json: JsValue = Json.toJson(condition)
+    println(Json.toJson(condition))
 
     val system = ActorSystem("HelloSystem")
 

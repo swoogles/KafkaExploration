@@ -4,6 +4,7 @@ import com.billding.akka.DutyAlerter.PING
 import com.billding.akka.RawWeatherAlerter.SNOW_ALERT
 import com.billding.kafka.KafkaConfigPermanent
 import com.billding.weather.WeatherType.Snow
+import play.api.libs.json.Json
 
 class DutyAlerter
   extends BidirectionalActor(
@@ -19,7 +20,7 @@ class DutyAlerter
         if (record.value().contains(Snow.name)) {
           bidirectionalKafka.send(
             "key",
-            s"Snow is coming! Buy a coat!"
+              Json.obj("alert"->s"Snow is coming! Buy a coat!")
           )
         }
       }
@@ -28,7 +29,7 @@ class DutyAlerter
     case snowAlert: SNOW_ALERT => {
       bidirectionalKafka.send(
         "key",
-        snowAlert.toString
+          Json.obj("alert"->s"Snow is coming! Buy a coat!")
       )
     }
   }

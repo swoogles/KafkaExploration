@@ -5,10 +5,10 @@ sealed case class Location(
 )
 
 object Location {
-  val values = List(phoenix, crestedButte, sanFrancisco)
   val phoenix = Location("Phoenix")
   val crestedButte = Location("CrestedButte")
   val sanFrancisco = Location("SanFrancisco")
+  val values = List(phoenix, crestedButte, sanFrancisco)
 //  case object CrestedButte extends Location
 //  case object SanFrancisco extends Location
 }

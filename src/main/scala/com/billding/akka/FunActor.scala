@@ -2,6 +2,7 @@ package com.billding.akka
 
 import com.billding.akka.RawWeatherAlerter.SNOW_ALERT
 import com.billding.kafka.KafkaConfigPermanent
+import play.api.libs.json.{JsObject, Json}
 
 class FunActor
   extends BidirectionalActor(
@@ -18,7 +19,7 @@ class FunActor
       if ( snowCount > 2 ) {
         bidirectionalKafka.send(
           "key",
-          snowAlert.toString
+          Json.obj("alert"->snowAlert.toString)
         )
       }
     }
@@ -30,7 +31,7 @@ class FunActor
         if (snowCount > 3) {
           bidirectionalKafka.send(
             "key",
-            snowAlert.toString
+            Json.obj("alert"->snowAlert.toString)
           )
         } else {
           // Do nothign
