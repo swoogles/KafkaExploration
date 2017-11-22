@@ -18,6 +18,7 @@ class RawWeatherAlerter
   ) {
   val name = "Raw Weath Alerter"
 
+  var weatherCyclesConsumed = 0
 
   def specificReceive: PartialFunction[Any, Unit] = {
     case PING(startTime) =>
@@ -40,12 +41,22 @@ class RawWeatherAlerter
         )
 
       } else {
+        weatherCyclesConsumed += 1
         for (record: ConsumerRecord[String, String] <- records.asScala) {
           println("Actually got RAW_WEATHER record: " + record.value)
           if (record.value.contains("Snow")) {
             println("recognized snow")
             context.parent ! SNOW_ALERT("Snow coming!", startTime)
           }
+        }
+        if ( weatherCyclesConsumed < 5 ) {
+          println("got records, but going back for more!")
+          context.system.scheduler.scheduleOnce(
+            5 milliseconds,
+            self,
+            PING(startTime)
+          )
+
         }
       }
   }

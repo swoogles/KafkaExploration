@@ -10,16 +10,35 @@ class FunActor
   ) {
   val name = "Fun Actor"
 
+  var snowCount = 0
+
   def specificReceive: PartialFunction[Any, Unit] = {
     case snowAlert: SNOW_ALERT => {
-      println("got a snow alert in fun actor")
-
-      bidirectionalKafka.send(
-        "key",
-        snowAlert.toString
-      )
+      snowCount+=1
+      if ( snowCount > 2 ) {
+        bidirectionalKafka.send(
+          "key",
+          snowAlert.toString
+        )
+      }
     }
   }
+
+  /*
+  def specificReceiveCounting: Integer => PartialFunction[Any, Unit] =
+    count => {
+      case snowAlert: SNOW_ALERT => {
+        if (count > 3) {
+          bidirectionalKafka.send(
+            "key",
+            snowAlert.toString
+          )
+        } else {
+          // Do nothign
+        }
+      }
+    }
+    */
 
 }
 

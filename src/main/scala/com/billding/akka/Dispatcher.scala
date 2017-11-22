@@ -40,7 +40,7 @@ class Dispatcher extends Actor {
       context.system .scheduler.scheduleOnce(
         2001 milliseconds,
         rawWeatherProducer,
-        RawWeatherProducer.START_PRODUCING_WEATHER
+        RawWeatherProducer.WeatherCycles(3)
       )
 
       context.system.scheduler.scheduleOnce(

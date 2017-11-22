@@ -5,6 +5,9 @@ import java.time.Clock
 import com.billding.weather.WeatherCondition
 import com.billding.kafka.{BidirectionalKafka, KafkaConfig, KafkaConfigPermanent}
 
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+
 class RawWeatherProducer
   extends BidirectionalActor(
     KafkaConfigPermanent.NULL_TOPIC,
@@ -25,6 +28,19 @@ class RawWeatherProducer
       weatherCycle().foreach(
         bidirectionalKafka.send( "key", _ )
       )
+    }
+
+    case RawWeatherProducer.WeatherCycles(count) => {
+      if (count > 0) {
+        weatherCycle().foreach(
+          bidirectionalKafka.send("key", _)
+        )
+        context.system.scheduler.scheduleOnce(
+          5 milliseconds,
+          self,
+          RawWeatherProducer.WeatherCycles(count - 1)
+        )
+      }
     }
   }
 }
