@@ -2,7 +2,7 @@ package com.billding.akka
 
 import java.time.Clock
 
-import com.billding.weather.WeatherCondition
+import com.billding.weather.{Condition, Location, WeatherType}
 import com.billding.kafka.{BidirectionalKafka, KafkaConfig, KafkaConfigPermanent}
 
 import scala.concurrent.duration._
@@ -18,12 +18,16 @@ class RawWeatherProducer
   val clock = Clock.systemUTC()
 
   def weatherCycle(): List[String] = {
-    for ( weather <- WeatherCondition.values) yield {
-      clock.instant().plusSeconds(weather.idx) + ": " + weather.name
+    for (
+      location <- Location.values;
+      weather <- WeatherType.values
+    ) yield {
+      Condition(location, weather, clock.instant().plusSeconds(weather.idx))
+      clock.instant().plusSeconds(weather.idx)+ ": " + location + ": " + weather.name
     }
   }
 
-  def specificReceive: PartialFunction[Any, Unit] = {
+  def receive: PartialFunction[Any, Unit] = {
     case RawWeatherProducer.START_PRODUCING_WEATHER => {
       weatherCycle().foreach(
         bidirectionalKafka.send( "key", _ )
