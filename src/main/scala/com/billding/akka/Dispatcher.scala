@@ -2,10 +2,10 @@ package com.billding.akka
 
 import java.time.Instant
 
-import akka.actor.{Actor, ActorRef, PoisonPill, Props}
+import akka.actor.{Actor, Props}
 import com.billding.akka.Dispatcher.Initiate
 import com.billding.akka.RawWeatherAlerter.SNOW_ALERT
-import com.billding.akka.Reaper.{WatchMe, WatchUs}
+import com.billding.akka.Reaper.WatchUsAndPoisonAfter
 
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -18,13 +18,14 @@ class Dispatcher extends Actor {
   val funActor = context.actorOf(Props[FunActor], name = "funActor")
   val dutyAlerterActor = context.actorOf(Props[DutyAlerter], name = "dutyAlerterActor")
 
-  reaper ! WatchUs(
+  reaper ! WatchUsAndPoisonAfter(
     Seq(
       rawWeatherActor,
       rawWeatherAlerter,
       funActor,
       dutyAlerterActor
-    )
+    ),
+    5500 milliseconds
   )
 
   override def receive = {
@@ -44,14 +45,6 @@ class Dispatcher extends Actor {
         RawWeatherAlerter.PING(startTime)
       )
 
-      poisonAfterPeriod(
-        Seq(
-          dutyAlerterActor,
-          rawWeatherActor,
-          rawWeatherAlerter,
-          funActor
-        )
-      )
     }
     case snowAlert: SNOW_ALERT => {
       funActor ! snowAlert
@@ -64,17 +57,6 @@ class Dispatcher extends Actor {
 
 
   }
-
-  def poisonAfterPeriod(
-    actors: Seq[ActorRef]
-  ) =
-    for ( actor <- actors) {
-      context.system.scheduler.scheduleOnce(
-        5500 milliseconds,
-        actor,
-        PoisonPill
-      )
-    }
 
 }
 
