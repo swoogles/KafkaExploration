@@ -1,9 +1,12 @@
 package com.billding.kafka
 
 import java.util
+import java.util.Properties
 
+import com.billding.serialization.JsonSerializer
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
+import org.apache.kafka.common.serialization.StringSerializer
 import play.api.libs.json.JsValue
 
 class BidirectionalKafka(
@@ -21,7 +24,10 @@ class BidirectionalKafka(
   }
 
   val producer: KafkaProducer[String, JsValue] =
-    new KafkaProducer[String, JsValue](kafkaConfig.props)
+
+//    new KafkaProducer[String, JsValue](kafkaConfig.props)
+
+  new KafkaProducer(kafkaConfig.props, new StringSerializer, new JsonSerializer[JsValue])
 
   def send(key: String , value: JsValue ) = {
     producer.send(
