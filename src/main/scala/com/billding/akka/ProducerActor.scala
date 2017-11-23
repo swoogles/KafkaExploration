@@ -3,8 +3,8 @@ package com.billding.akka
 import java.time.Clock
 
 import com.billding.weather.{Condition, Location, WeatherType}
-import com.billding.kafka.{BidirectionalKafka, KafkaConfig, KafkaConfigPermanent}
-import play.api.libs.json.{JsValue, Json}
+import com.billding.kafka.KafkaConfigPermanent
+import play.api.libs.json.Json
 
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -18,19 +18,13 @@ class RawWeatherProducer
 
   val clock = Clock.systemUTC()
 
-  implicit val locationWrites = Json.writes[Location]
-  implicit val weatherTypeWrites = Json.writes[WeatherType]
-  implicit val conditionWrites = Json.writes[Condition]
-
-  def weatherCycle(): List[Condition] = {
+  def weatherCycle(): List[Condition] =
     for (
       location <- Location.values;
       weather <- WeatherType.values
     ) yield {
       Condition(location, weather, clock.instant().plusSeconds(weather.idx))
-//      clock.instant().plusSeconds(weather.idx)+ ": " + location + ": " + weather.name
     }
-  }
 
   def receive: PartialFunction[Any, Unit] = {
     case RawWeatherProducer.START_PRODUCING_WEATHER => {

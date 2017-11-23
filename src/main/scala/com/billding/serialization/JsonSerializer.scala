@@ -3,13 +3,14 @@ package com.billding.serialization
 import org.apache.kafka.common.serialization.{Serializer, StringSerializer}
 import play.api.libs.json.{Json, Writes}
 
-
 class JsonSerializer[A: Writes] extends Serializer[A] {
   private val stringSerializer = new StringSerializer
 
-  override def configure(configs: java.util.Map[String, _], isKey: Boolean) = stringSerializer.configure(configs, isKey)
+  override def configure(configs: java.util.Map[String, _], isKey: Boolean) =
+    stringSerializer.configure(configs, isKey)
 
   override def serialize(topic: String, data: A) =
     stringSerializer.serialize(topic, Json.stringify(Json.toJson(data)))
+
   override def close() = stringSerializer.close()}
 

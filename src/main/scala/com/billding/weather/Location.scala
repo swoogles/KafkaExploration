@@ -1,5 +1,7 @@
 package com.billding.weather
 
+import play.api.libs.json.Json
+
 sealed case class Location(
   name: String
 )
@@ -9,6 +11,6 @@ object Location {
   val crestedButte = Location("CrestedButte")
   val sanFrancisco = Location("SanFrancisco")
   val values = List(phoenix, crestedButte, sanFrancisco)
-//  case object CrestedButte extends Location
-//  case object SanFrancisco extends Location
+
+  implicit val locationFormat = Json.format[Location]
 }
