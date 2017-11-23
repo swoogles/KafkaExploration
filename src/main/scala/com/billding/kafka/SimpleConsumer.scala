@@ -11,9 +11,8 @@ class SimpleConsumer(
 
   consumer.subscribe(Collections.singletonList(input))
 
-  def poll(timeout: Long) = {
-    println("polling on: " + input)
+  def poll(timeout: Long) =
     consumer.poll(timeout)
-  }
+
 }
 

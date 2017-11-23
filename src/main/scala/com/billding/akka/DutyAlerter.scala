@@ -5,15 +5,14 @@ import com.billding.kafka.KafkaConfigPermanent
 import play.api.libs.json.Json
 
 class DutyAlerter
-  extends BidirectionalActor(
-    KafkaConfigPermanent.RAW_WEATHER,
+  extends ProducingActor(
     KafkaConfigPermanent.BUSINESS_TOPIC
   ) {
   val name = "Duty Alerter"
 
   def receive: PartialFunction[Any, Unit] = {
     case _: SNOW_ALERT => {
-      bidirectionalKafka.send(
+      producer.send(
         "key",
           Json.obj("alert"->s"Snow is coming! Buy a coat!")
       )

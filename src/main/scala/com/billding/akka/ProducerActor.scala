@@ -10,8 +10,7 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class RawWeatherProducer
-  extends BidirectionalActor(
-    KafkaConfigPermanent.NULL_TOPIC,
+  extends ProducingActor(
     KafkaConfigPermanent.RAW_WEATHER
   ) {
   val name = "Raw Weath Actor"
@@ -29,14 +28,14 @@ class RawWeatherProducer
   def receive: PartialFunction[Any, Unit] = {
     case RawWeatherProducer.START_PRODUCING_WEATHER => {
       weatherCycle().foreach( condition =>
-        bidirectionalKafka.send( "key", Json.toJson(condition) )
+        producer.send( "key", Json.toJson(condition) )
       )
     }
 
     case RawWeatherProducer.WeatherCycles(count) => {
       if (count > 0) {
         weatherCycle().foreach( condition =>
-          bidirectionalKafka.send( "key", Json.toJson(condition) )
+          producer.send( "key", Json.toJson(condition) )
         )
         context.system.scheduler.scheduleOnce(
           5 milliseconds,

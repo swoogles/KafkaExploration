@@ -18,12 +18,10 @@ class KafkaConfig {
   props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
   props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
 
-  val TOPIC_1 = "test2"
   val RAW_WEATHER = "raw_weather"
-
-  val NULL_TOPIC = "This really just means that I need to come up with a less Stringly-typed solution. Until then- weak."
   val BUSINESS_TOPIC = "business_topic"
   val PLEASURE_TOPIC = "pleasure_topic"
+
   val clock = Clock.systemUTC()
 }
 
@@ -38,10 +36,7 @@ object KafkaConfigPermanent {
   props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
   props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
 
-  val TOPIC_1 = "test2"
   val RAW_WEATHER = "raw_weather"
-
-  val NULL_TOPIC = "This really just means that I need to come up with a less Stringly-typed solution. Until then- weak."
   val BUSINESS_TOPIC = "business_topic"
   val PLEASURE_TOPIC = "pleasure_topic"
 }

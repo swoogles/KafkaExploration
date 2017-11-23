@@ -5,8 +5,7 @@ import com.billding.kafka.KafkaConfigPermanent
 import play.api.libs.json.{JsObject, Json}
 
 class FunActor
-  extends BidirectionalActor(
-    KafkaConfigPermanent.NULL_TOPIC,
+  extends ProducingActor(
     KafkaConfigPermanent.PLEASURE_TOPIC
   ) {
   val name = "Fun Actor"
@@ -17,7 +16,7 @@ class FunActor
     case snowAlert: SNOW_ALERT => {
       snowCount+=1
       if ( snowCount > 2 ) {
-        bidirectionalKafka.send(
+        producer.send(
           "key",
           Json.obj("alert"->snowAlert.toString)
         )
@@ -29,7 +28,7 @@ class FunActor
     {
       case snowAlert: SNOW_ALERT => {
         if (snowCount > 3) {
-          bidirectionalKafka.send(
+          producer.send(
             "key",
             Json.obj("alert"->snowAlert.toString)
           )
