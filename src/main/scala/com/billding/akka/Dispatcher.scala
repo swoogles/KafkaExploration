@@ -1,6 +1,6 @@
 package com.billding.akka
 
-import java.time.Instant
+import java.time.{Clock, Instant}
 
 import akka.actor.{Actor, Props}
 import com.billding.akka.Dispatcher.Initiate
@@ -12,6 +12,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class Dispatcher extends Actor {
   val reaper = context.actorOf(Props[ProductionReaper], name = "reaper")
+
+  val clock = Clock.systemUTC()
 
   val rawWeatherProducer =
     context.actorOf(Props[RawWeatherProducer], name = "rawWeatherProducer")
@@ -35,7 +37,8 @@ class Dispatcher extends Actor {
   override def receive = {
     case Initiate => {
       println("start doing stuff!")
-      val startTime = Instant.now().minusSeconds(10)
+      // TODO remove nasty clock side-effects
+      val startTime = clock.instant().minusSeconds(10)
 
       context.system .scheduler.scheduleOnce(
         2001 milliseconds,
@@ -63,7 +66,6 @@ class Dispatcher extends Actor {
   }
 
 }
-
 
 object Dispatcher {
   sealed trait Actions

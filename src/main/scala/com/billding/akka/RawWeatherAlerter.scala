@@ -24,16 +24,8 @@ class RawWeatherAlerter
     case PING(startTime) =>
       println("RawWeatherAlerter got a ping")
 
-//      bidirectionalKafka.consumer.poll(1)
-//      bidirectionalKafka.consumer.seekToBeginning(
-//        List(
-//          new TopicPartition(KafkaConfigPermanent.RAW_WEATHER, 0)
-//        )
-//      )
-
       val records: ConsumerRecords[String, String] = bidirectionalKafka.poll(200)
       if ( records.isEmpty ) {
-        println("going to try again for more records in a bit! Without blocking!")
         context.system.scheduler.scheduleOnce(
           5 milliseconds,
           self,
@@ -41,16 +33,26 @@ class RawWeatherAlerter
         )
 
       } else {
+        // This could process mid-cycle, and not actually indicate all conditions were handled.
         weatherCyclesConsumed += 1
+
+        // Original way
+        /*
         for (record: ConsumerRecord[String, String] <- records.asScala) {
-          println("Actually got RAW_WEATHER record: " + record.value)
           if (record.value.contains("Snow")) {
             println("recognized snow")
             context.parent ! SNOW_ALERT("Snow coming!", startTime)
           }
         }
+        */
+
+        // More functional way
+        records.asScala
+          .filter(_.value.contains("Snow"))
+          .foreach(_ => context.parent ! SNOW_ALERT("Snow coming!", startTime))
+
+
         if ( weatherCyclesConsumed < 5 ) {
-          println("got records, but going back for more!")
           context.system.scheduler.scheduleOnce(
             5 milliseconds,
             self,
