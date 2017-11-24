@@ -6,6 +6,7 @@ import akka.actor.{Actor, Props}
 import com.billding.akka.Dispatcher.Initiate
 import com.billding.akka.RawWeatherAlerter.SNOW_ALERT
 import com.billding.akka.Reaper.WatchUsAndPoisonAfter
+import com.billding.weather.ExampleScenarios
 
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -39,11 +40,12 @@ class Dispatcher extends Actor {
       println("start doing stuff!")
       // TODO remove nasty clock side-effects
       val startTime = clock.instant().minusSeconds(10)
+      val scenarios = new ExampleScenarios(clock)
 
       context.system .scheduler.scheduleOnce(
         2001 milliseconds,
         rawWeatherProducer,
-        RawWeatherProducer.WeatherCycles(3)
+        RawWeatherProducer.WeatherStory(scenarios.mostlySnow())
       )
 
       context.system.scheduler.scheduleOnce(
