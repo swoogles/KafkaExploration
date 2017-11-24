@@ -17,12 +17,29 @@ class RawWeatherProducer
 
   val clock = Clock.systemUTC()
 
+  import WeatherType._
+  val weatherPattern =
+    List(
+      Snow,
+      Clear,
+      Snow,
+      Clear,
+      Snow
+    )
+
+  def weatherCycle2(): List[Condition] =
+    for (
+      (weather, idx) <- weatherPattern.zipWithIndex
+    ) yield {
+      Condition(Location.crestedButte, weather, clock.instant().plusSeconds(idx))
+    }
+
   def weatherCycle(): List[Condition] =
     for (
       location <- Location.values;
-      weather <- WeatherType.values
+      (weather, idx) <- WeatherType.values.zipWithIndex
     ) yield {
-      Condition(location, weather, clock.instant().plusSeconds(weather.idx))
+      Condition(location, weather, clock.instant().plusSeconds(idx))
     }
 
   def receive: PartialFunction[Any, Unit] = {
@@ -34,7 +51,7 @@ class RawWeatherProducer
 
     case RawWeatherProducer.WeatherCycles(count) => {
       if (count > 0) {
-        weatherCycle().foreach( condition =>
+        weatherCycle2().foreach( condition =>
           producer.send( "key", Json.toJson(condition) )
         )
         context.system.scheduler.scheduleOnce(
