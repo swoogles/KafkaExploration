@@ -1,6 +1,6 @@
 package com.billding.weather
 
-import java.time.Clock
+import java.time.{Clock, Duration}
 
 class ExampleScenarios(clock: Clock) {
 
@@ -10,6 +10,8 @@ class ExampleScenarios(clock: Clock) {
       Snow,
       Clear,
       Snow,
+      Snow,
+      Snow,
       Clear,
       Snow
     )
@@ -18,7 +20,8 @@ class ExampleScenarios(clock: Clock) {
     for (
       (weather, idx) <- weatherPattern.zipWithIndex
     ) yield {
-      Condition(Location.crestedButte, weather, clock.instant().plusSeconds(idx))
+      Condition(Location.crestedButte, weather, clock.instant().plus(Duration.ofDays(idx)))
+//      Condition(Location.crestedButte, weather, clock.instant().plusSeconds(idx))
     }
 
 
