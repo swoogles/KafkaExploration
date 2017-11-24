@@ -6,7 +6,7 @@ import akka.actor.{Actor, Props}
 import com.billding.akka.Dispatcher.Initiate
 import com.billding.akka.RawWeatherAlerter.SNOW_ALERT
 import com.billding.akka.Reaper.WatchUsAndPoisonAfter
-import com.billding.weather.ExampleScenarios
+import com.billding.weather.{Condition, ExampleScenarios}
 
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -42,6 +42,8 @@ class Dispatcher extends Actor {
       val startTime = clock.instant().minusSeconds(10)
       val scenarios = new ExampleScenarios(clock)
 
+      println("Going to start scenario with " + scenarios.mostlySnow().length + " items")
+
       context.system .scheduler.scheduleOnce(
         2001 milliseconds,
         rawWeatherProducer,
@@ -58,6 +60,11 @@ class Dispatcher extends Actor {
     case snowAlert: SNOW_ALERT => {
       funActor ! snowAlert
       dutyAlerterActor ! snowAlert
+    }
+    case condition: Condition => {
+//      funActor ! condition
+      dutyAlerterActor ! condition
+
     }
     case other => {
       println("unrecognized message in dispatcher")
