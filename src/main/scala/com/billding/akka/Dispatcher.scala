@@ -44,16 +44,16 @@ class Dispatcher extends Actor {
 
       println("Going to start scenario with " + scenarios.mostlySnow().length + " items")
 
-      context.system .scheduler.scheduleOnce(
-        2001 milliseconds,
-        rawWeatherProducer,
-        RawWeatherProducer.WeatherStory(scenarios.mostlySnow())
-      )
-
       context.system.scheduler.scheduleOnce(
         100 milliseconds,
         rawWeatherAlerter,
         RawWeatherAlerter.PING(startTime)
+      )
+
+      context.system .scheduler.scheduleOnce(
+        200 milliseconds,
+        rawWeatherProducer,
+        RawWeatherProducer.WeatherStory(scenarios.mostlySnow())
       )
 
     }

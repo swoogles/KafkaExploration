@@ -20,10 +20,12 @@ class RawWeatherAlerter
   val name = "Raw Weath Alerter"
 
   var weatherCyclesConsumed = 0
+  consumer.poll(200) // Clear out the line
+
+  var recordsConsumed = 0
 
   def receive: PartialFunction[Any, Unit] = {
     case PING(startTime) =>
-
       /*
       consumer.consumer.seek(
       new TopicPartition("raw_weather_retry", 1),
@@ -32,6 +34,7 @@ class RawWeatherAlerter
       */
       val records: ConsumerRecords[String, String] = consumer.poll(200)
       println("numRecords: " + records.count())
+      recordsConsumed += records.count()
       if ( ! records.isEmpty ) {
         // This could process mid-cycle, and not actually indicate all conditions were handled.
         weatherCyclesConsumed += 1
@@ -42,7 +45,7 @@ class RawWeatherAlerter
         typedRecords
           .foreach(context.parent ! _)
       }
-      if ( weatherCyclesConsumed < 7) {
+      if ( recordsConsumed < 7) {
         context.system.scheduler.scheduleOnce(
           50 milliseconds,
           self,
