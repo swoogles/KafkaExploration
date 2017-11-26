@@ -4,6 +4,7 @@ import java.time.{Clock, Instant}
 
 import akka.actor.{Actor, Props}
 import com.billding.akka.Dispatcher.Initiate
+import com.billding.akka.PlowingService.Plow
 import com.billding.akka.RawWeatherAlerter.SNOW_ALERT
 import com.billding.akka.Reaper.WatchUsAndPoisonAfter
 import com.billding.weather.{Condition, ExampleScenarios}
@@ -22,8 +23,12 @@ class Dispatcher extends Actor {
     context.actorOf(Props[RawWeatherAlerter], name = "rawWeatherAlerterActor")
   val funActor =
     context.actorOf(Props[FunActor], name = "funActor")
+
   val dutyAlerterActor =
     context.actorOf(Props[DutyAlerter], name = "dutyAlerterActor")
+
+  val plowingService =
+    context.actorOf(Props[PlowingService], name = "plowingServiceActor")
 
   reaper ! WatchUsAndPoisonAfter(
     Seq(
@@ -65,6 +70,12 @@ class Dispatcher extends Actor {
 //      funActor ! condition
       dutyAlerterActor ! condition
 
+    }
+    case plowingServiceAction: Plow => {
+      plowingService ! plowingServiceAction
+    }
+    case receipt: Receipt => {
+      println("confirmation of work: " + receipt)
     }
     case other => {
       println("unrecognized message in dispatcher")

@@ -1,5 +1,6 @@
 package com.billding.akka
 
+import com.billding.akka.PlowingService.Plow
 import com.billding.akka.RawWeatherAlerter.SNOW_ALERT
 import com.billding.kafka.KafkaConfigPermanent
 import com.billding.weather.{Condition, WeatherType}
@@ -16,8 +17,10 @@ class DutyAlerter
   def receive: PartialFunction[Any, Unit] = {
     case condition: Condition => {
       println("condition: " + condition)
-      if ( condition.weatherType.equals(WeatherType.Snow))
+      if ( condition.weatherType.equals(WeatherType.Snow)) {
+        context.parent ! Plow(condition.location)
         continuousSnowDays += 1
+      }
       else
         continuousSnowDays = 0
 

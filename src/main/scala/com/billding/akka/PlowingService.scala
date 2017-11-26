@@ -22,6 +22,8 @@ class PlowingService extends Actor {
 
   override def receive = {
     case plow: Plow => {
+      println("attempting to plow")
+
       if ( trucksAvailable > 0 ) {
         trucksAvailable -= 1
         // TODO: Alter world in some way? Add truck, mark location as busy, etc
