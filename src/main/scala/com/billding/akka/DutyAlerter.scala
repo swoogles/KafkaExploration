@@ -18,6 +18,7 @@ class DutyAlerter
     case condition: Condition => {
       println("condition: " + condition)
       if ( condition.weatherType.equals(WeatherType.Snow)) {
+        // TODO I think I should be passing the PlowingService actorRef to this class's constructor.
         context.parent ! Plow(condition.location)
         continuousSnowDays += 1
       }

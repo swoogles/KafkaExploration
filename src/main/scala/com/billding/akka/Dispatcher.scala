@@ -71,6 +71,7 @@ class Dispatcher extends Actor {
       dutyAlerterActor ! condition
 
     }
+    // I think everything coming back through to dispatcher is an anti-pattern/smell
     case plowingServiceAction: Plow => {
       plowingService ! plowingServiceAction
     }
