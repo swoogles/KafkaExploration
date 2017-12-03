@@ -21,14 +21,16 @@ class Dispatcher extends Actor {
   val rawWeatherProducer: ActorRef =
     context.actorOf(Props[RawWeatherProducer], name = "rawWeatherProducer")
 
-  val rawWeatherAlerter: ActorRef =
-    context.actorOf(Props[RawWeatherAlerter], name = "rawWeatherAlerterActor")
-
   val funActor: ActorRef =
     context.actorOf(Props[FunActor], name = "funActor")
 
   val dutyAlerterActor: ActorRef =
     context.actorOf(Props[DutyAlerter], name = "dutyAlerterActor")
+
+
+  val rawWeatherAlerter: ActorRef =
+//    context.actorOf(Props[RawWeatherAlerter], name = "rawWeatherAlerterActor")
+  context.actorOf(Props(classOf[RawWeatherAlerter], List(funActor, dutyAlerterActor)), name = "rawWeatherAlerterActor")
 
   val plowingService: ActorRef =
     context.actorOf(Props[PlowingService], name = "plowingServiceActor")

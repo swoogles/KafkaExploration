@@ -14,7 +14,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class RawWeatherAlerter
+class RawWeatherAlerter(downStreamActors: Seq[ActorRef])
   extends ConsumingActor(
     KafkaConfigPermanent.RAW_WEATHER
   ) {
@@ -23,14 +23,9 @@ class RawWeatherAlerter
   var weatherCyclesConsumed = 0
   consumer.poll(200) // Clear out the line
 
-  var downStreamActors: Seq[ActorRef] = Seq()
-
   var recordsConsumed = 0
 
   def receive: PartialFunction[Any, Unit] = {
-    case downstream: Seq[ActorRef] =>
-      downStreamActors = downstream
-
     case PING(startTime) =>
       /*
       consumer.consumer.seek(
