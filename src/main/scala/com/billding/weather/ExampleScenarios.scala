@@ -13,7 +13,12 @@ class ExampleScenarios(clock: Clock) {
       Snow,
       Snow,
       Clear,
-      Snow
+      Snow,
+      Snow,
+      Snow,
+      Snow,
+      Snow,
+      Clear
     )
 
   def mostlySnow(): List[Condition] =
