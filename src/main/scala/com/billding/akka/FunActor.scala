@@ -2,6 +2,7 @@ package com.billding.akka
 
 import com.billding.akka.RawWeatherAlerter.SNOW_ALERT
 import com.billding.kafka.KafkaConfigPermanent
+import com.billding.weather.{Condition, WeatherType}
 import play.api.libs.json.{JsObject, Json}
 
 class FunActor
@@ -19,6 +20,16 @@ class FunActor
         producer.send(
           "key",
           Json.obj("alert"->snowAlert.toString)
+        )
+      }
+    }
+
+    case condition: Condition => {
+      println("condition in fun actor: " + condition)
+      if (condition.weatherType.equals(WeatherType.Snow)) {
+        producer.send(
+          "key",
+          Json.obj("alert"-> (condition.time + ": go shred it!"))
         )
       }
     }
