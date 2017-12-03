@@ -2,32 +2,35 @@ package com.billding.akka
 
 import java.time.{Clock, Instant}
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, ActorRef, Props}
 import com.billding.akka.Dispatcher.Initiate
 import com.billding.akka.PlowingService.Plow
 import com.billding.akka.RawWeatherAlerter.SNOW_ALERT
 import com.billding.akka.Reaper.WatchUsAndPoisonAfter
 import com.billding.weather.{Condition, ExampleScenarios}
 
+import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class Dispatcher extends Actor {
-  val reaper = context.actorOf(Props[ProductionReaper], name = "reaper")
+  val reaper: ActorRef = context.actorOf(Props[ProductionReaper], name = "reaper")
 
-  val clock = Clock.systemUTC()
+  val clock: Clock = Clock.systemUTC()
 
-  val rawWeatherProducer =
+  val rawWeatherProducer: ActorRef =
     context.actorOf(Props[RawWeatherProducer], name = "rawWeatherProducer")
-  val rawWeatherAlerter =
+
+  val rawWeatherAlerter: ActorRef =
     context.actorOf(Props[RawWeatherAlerter], name = "rawWeatherAlerterActor")
-  val funActor =
+
+  val funActor: ActorRef =
     context.actorOf(Props[FunActor], name = "funActor")
 
-  val dutyAlerterActor =
+  val dutyAlerterActor: ActorRef =
     context.actorOf(Props[DutyAlerter], name = "dutyAlerterActor")
 
-  val plowingService =
+  val plowingService: ActorRef =
     context.actorOf(Props[PlowingService], name = "plowingServiceActor")
 
   reaper ! WatchUsAndPoisonAfter(
@@ -48,6 +51,10 @@ class Dispatcher extends Actor {
       val scenarios = new ExampleScenarios(clock)
 
       println("Going to start scenario with " + scenarios.mostlySnow().length + " items")
+
+      val weatherResponders: Seq[ActorRef] = List(funActor, dutyAlerterActor )
+
+      rawWeatherAlerter ! weatherResponders
 
       context.system.scheduler.scheduleOnce(
         100 milliseconds,

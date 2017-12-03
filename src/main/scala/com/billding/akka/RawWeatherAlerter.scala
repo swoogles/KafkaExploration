@@ -2,6 +2,7 @@ package com.billding.akka
 
 import java.time.Instant
 
+import akka.actor.ActorRef
 import com.billding.akka.RawWeatherAlerter.{PING, SNOW_ALERT}
 import com.billding.kafka.KafkaConfigPermanent
 import com.billding.weather.{Condition, WeatherType}
@@ -22,9 +23,14 @@ class RawWeatherAlerter
   var weatherCyclesConsumed = 0
   consumer.poll(200) // Clear out the line
 
+  var downStreamActors: Seq[ActorRef] = Seq()
+
   var recordsConsumed = 0
 
   def receive: PartialFunction[Any, Unit] = {
+    case downstream: Seq[ActorRef] =>
+      downStreamActors = downstream
+
     case PING(startTime) =>
       /*
       consumer.consumer.seek(
@@ -43,7 +49,11 @@ class RawWeatherAlerter
           .map(record=>Json.parse(record.value).as[Condition])
 
         typedRecords
-          .foreach(context.parent ! _)
+          .foreach({
+            record =>
+              downStreamActors.foreach(_ ! record)
+//            context.parent ! record
+          })
       }
       if ( recordsConsumed < 7) {
         context.system.scheduler.scheduleOnce(
