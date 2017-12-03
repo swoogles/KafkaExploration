@@ -12,6 +12,7 @@ class ExampleScenarios(clock: Clock) {
       Snow,
       Snow,
       Snow,
+      Snow,
       Clear,
       Snow,
       Snow,

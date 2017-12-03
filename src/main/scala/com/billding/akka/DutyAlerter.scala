@@ -25,10 +25,39 @@ class DutyAlerter
 
   var continuousSnowDays = 0
 
-  def blizzardConditions: PartialFunction[Any, Unit] = {
+  var initialRun = true
+
+  private def modeDetermination: PartialFunction[Any, Any] = {
     case condition: Condition => {
-      println("condition: " + condition)
+      if (initialRun) {
+        producer.send(
+          "key",
+          Json.obj("alert" -> s"=============================NEW RUN=============================")
+        )
+        initialRun = false
+      }
       if (condition.weatherType.equals(WeatherType.Snow)) {
+        continuousSnowDays += 1
+        if (continuousSnowDays >= 3) {
+          println("GOING INTO BLIZZARD MODE")
+          context.become( modeDetermination.andThen(blizzardConditions) )
+          println("became")
+        }
+      } else {
+        continuousSnowDays = 0
+        println("BECOMING NORMAL AGAIN")
+        context.become(modeDetermination.andThen(normalConditions))
+        println("became")
+      }
+      condition
+    }
+    case x => x
+  }
+
+  private def blizzardConditions: PartialFunction[Any, Unit] = {
+    case condition: Condition => {
+      if (condition.weatherType.equals(WeatherType.Snow)) {
+        println("Number of days in blizzard mode: " + continuousSnowDays)
         producer.send(
           "key",
           Json.obj("alert" -> s"Send out the plow trucks. We're in blizzard mode.")
@@ -38,46 +67,33 @@ class DutyAlerter
           Json.toJson(Alert("Too many days of snow. Cancel school. We're in blizzard mode.", condition.time))
         )
 
-        if ( continuousSnowDays >= 5) {
+        if (continuousSnowDays >= 5) {
           producer.send(
             "key",
-            Json.obj("alert"->s"Conditions are dire. Sound out trucks to help those stuck.")
+            Json.obj("alert" -> s"Conditions are dire. Sound out trucks to help those stuck.")
           )
         }
-      } else {
-        continuousSnowDays = 0
-        println("becoming normal again")
-        context.become(normalConditions)
       }
     }
   }
 
-  blizzardConditions.andThen(blizzardConditions)
-
-  def normalConditions: PartialFunction[Any, Unit] = {
+  private def normalConditions: PartialFunction[Any, Unit] = {
     case condition: Condition => {
       println("condition: " + condition)
       if (condition.weatherType.equals(WeatherType.Snow)) {
-        continuousSnowDays += 1
         // TODO I think I should be passing the PlowingService actorRef to this class's constructor.
-
         producer.send(
           "key",
           Json.obj("alert" -> s"Send out the plow trucks.")
         )
         context.parent ! Plow(condition.location)
       }
-      else
-        continuousSnowDays = 0
 
-      if (continuousSnowDays >= 3) {
-        context.become( blizzardConditions )
-      }
     }
   }
 
   def receive: PartialFunction[Any, Unit] = {
-    normalConditions
+    modeDetermination.andThen(normalConditions)
   }
 
 }
